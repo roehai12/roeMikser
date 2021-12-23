@@ -1,0 +1,238 @@
+# r"C:\py\sampleFile.txt" the file im working with containS :(cat dog penguin monkey elephant whale girrafe lion alligator bee ant bison spider dolphin fox turtle mause goldfish hamster parrot rabbit frog)
+
+old_guesses=[]# arry consisting of old letters guessed
+ 
+HANGMAN_ASCII_ART="""
+
+
+     ___      .__   __.  __  .___  ___.      ___       __          _______.
+    /   \     |  \ |  | |  | |   \/   |     /   \     |  |        /       |
+   /  ^  \    |   \|  | |  | |  \  /  |    /  ^  \    |  |       |   (----`
+  /  /_\  \   |  . `  | |  | |  |\/|  |   /  /_\  \   |  |        \   \    
+ /  _____  \  |  |\   | |  | |  |  |  |  /  _____  \  |  `----.----)   |   
+/__/     \__\ |__| \__| |__| |__|  |__| /__/     \__\ |_______|_______/    
+                                                                           
+        __    __       ___      .__   __.   _______ .___  ___.      ___      .__   __.
+       |  |  |  |     /   \     |  \ |  |  /  _____||   \/   |     /   \     |  \ |  | 
+       |  |__|  |    /  ^  \    |   \|  | |  |  __  |  \  /  |    /  ^  \    |   \|  | 
+       |   __   |   /  /_\  \   |  . \` | |  | |_ | |  |\/|  |   /  /_\  \   |  . \` | 
+       |  |  |  |  /  _____  \  |  |\   | |  |__| | |  |  |  |  /  _____  \  |  |\   | 
+       |__|  |__| /__/     \__\ |__| \__|  \______| |__|  |__| /__/     \__\ |__| \__| 
+    
+       WHELCOME TO THE ANIMALS HANGMAN GAME!                        
+      
+    you have 6 guesses   """
+
+HANGMAN_PHOTOS={1:"x-------x",2:"""   x-------x
+    |
+    |
+    |
+    |
+    |
+""",3:"""    x-------x
+    |       |
+    |       0
+    |
+    |
+    |
+""",4:"""    x-------x
+    |       |
+    |       0
+    |       |
+    |
+    |""",5:"""    x-------x
+    |       |
+    |       0
+    |      /|\\
+    |
+     """,6:"""    x-------x
+    |       |
+    |       0
+    |      /|\\
+    |      /
+    |""",7:"""    x-------x
+    |       |
+    |       0
+    |      /|\\
+    |      / \\
+    |"""}
+
+
+def show_hidden_word(secret_word, old_letters_guessed):
+    """
+     The function returns a string which consists of letters and underlines.
+     The string displays the letters from the old_letters_guessed list that 
+     are in the secret_word string in their appropriate position,
+     and the rest of the letters in the string
+     (which the player has not yet guessed) as underlines.
+     :secret_word: string of the word need to be guessed
+     :old_letters_guessed: arry of letters the user has allredy guessed
+     return string
+    """
+    le=len(secret_word)
+    g =  ['_ ']*le
+    j=0
+    for x in old_letters_guessed:
+        i=secret_word.find(x)
+        if(i!=-1):
+            for j in range (le):
+                if (secret_word[j] == x):
+                    g[j]=x
+            j=0
+
+    return "".join(g)
+           
+
+def check_win(secret_word, old_letters_guessed):
+    """
+    the function check if the player guessed all the letters (if old the leters is the secret
+    world are in the guessed worlds)
+    :secret_word: The world need to be guessed
+    :old_letters_guessed: Letters guessed
+    print win/lost
+    """
+    if (show_hidden_word(secret_word,old_letters_guessed) == secret_word):
+        return True
+        print("its a win!!!!")
+    else:
+        return False
+
+
+        
+
+           
+def check_valid_input(letter_guessed, old_letters_guessed):
+    """
+    check if user input is a valid letter and hasent been guessed yet
+    :letter_guessed:       user string input
+    :old_letters_guessed:  old letters the user guessed
+    """
+    if(( len(letter_guessed) > 1) or ( letter_guessed.isascii() and not ( letter_guessed.isalpha() )) or( letter_guessed.lower() in list(map(str.lower,old_letters_guessed)) ) ): 
+          return False
+    else:
+          return True
+              
+
+def choose_word(file_path, index):
+    """
+    The function returns a tuple consisting of two members in the following order:
+     (1) the number of different words in the file 
+     (2) a word in the position obtained as an argument to the function (index).
+     :file_path: string that represents a path to a text file that contains spaces separated by spaces
+     :index: An integer representing the location of a particular word in a file
+    """
+    file_data= open(file_path,"r")
+    data= file_data.read()
+    list_of_words= []
+    list_of_words=data.split()
+    words_total= []
+    list_of_words.sort()
+    for x in range( len( list_of_words ) -1):
+        if(words_total.count(list_of_words[x]) == 0):
+            words_total.append(list_of_words[x])
+    words_amount=len(words_total)
+    g=index
+    if(index>len(words_total)):
+        g=(index % len(words_total))
+    secret_word=words_total[g]
+    tuple=(words_amount, secret_word)
+    return tuple
+
+
+
+
+
+def try_update_letter_guessed(letter_guessed, old_letters_guessed):
+    """
+    if the input is vaild, it will be added to guessed letters list
+    :letter_guessed:         string of player guess
+    :old_letters_guessed:    list of old guesses 
+    """
+    if(check_valid_input(letter_guessed, old_letters_guessed)):
+           old_guesses.append(letter_guessed)
+           return True  
+    else:
+        print("\n X\n")
+        print(*sorted(old_letters_guessed), sep = "-> ") 
+        return False
+
+
+
+def check_if_letter_is_in_secret_word(secret_word, letter_guessed):
+    """
+    the function return true if letter is in the secret word and false if it isnt
+    :secret_word: the word need to be guessed
+    :letter_guessed: the latter has just been guessed
+    """
+    if(letter_guessed in secret_word):
+        return True
+    else: 
+        return False
+
+
+def print_hangman(num_of_tries):
+    print(HANGMAN_PHOTOS[num_of_tries+1])
+
+
+def main():      #main$@code
+
+
+    print(HANGMAN_ASCII_ART)                        #1מסך פתיחה
+ 
+    index=int(input("\n pls enter a random number for a secred word pick"))                                     #2
+    secret_word=choose_word(r"C:\py\sampleFile.txt",index)[1] # This is the word the user needs to guess
+    #מכיוון שאני עובד עם מסמך מאוד ספציפי אז לא רציתי שיהיה קלט של מסמך ממקור חיצוני
+
+
+    num_of_failed_tries = 0 # represents the number of failed attempts the user has made so far
+    print("the hangman now: " + HANGMAN_PHOTOS[1])                                                 #3
+
+    print(show_hidden_word(secret_word, old_guesses))             #שורה של אותיות וקווים תחתונים מהמילה4
+    
+    # אני עובד רק עם check win, show hidden word, check_how_many_failed_tries and try_update_letter_guessed
+   
+   
+
+
+
+    while(1): #לולאה ראשית שעושה את החלק של הקלט5
+        
+        guessed_letter=input("\n\npls enter a valid guess letter: ")
+        if not (try_update_letter_guessed(guessed_letter, old_guesses)):
+            continue #if the input is invalid
+
+        else: # if the input is valid
+            if not(check_if_letter_is_in_secret_word( secret_word, guessed_letter)):
+                num_of_failed_tries+=1 #if the letter isnt in the secret word
+            
+
+
+            print("\n")
+            print_hangman(num_of_failed_tries)#prints hangman mode
+            print("\n")
+            print("you have :" , (6-num_of_failed_tries) ,"tries left") 
+
+            if(num_of_failed_tries >= 6):#cheaks if its a lost 
+                print("LOSE")
+               
+                break
+
+            
+            print(show_hidden_word(secret_word, old_guesses)+"\n\n")# print secret word made of "_" and letters
+            
+            if(check_win(secret_word, old_guesses)):#cheaks if its a win
+                
+                print("WIN")
+
+                break
+                
+
+
+    
+if __name__ == "__main__":
+    main()
+
+
+
+
+
